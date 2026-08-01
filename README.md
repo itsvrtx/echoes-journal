@@ -22,10 +22,10 @@
 1. [Overview & Philosophy](#-overview--philosophy)
 2. [Why Python & PyQt6?](#-why-python--pyqt6)
 3. [Key Features](#-key-features)
-4. [Technology Stack & Libraries](#-technology-stack--libraries)
+4. [Technology Stack & Libraries](#%EF%B8%8F-technology-stack--libraries)
 5. [Architecture & Project Structure](#-architecture--project-structure)
 6. [Security & Hidden Database System](#-security--hidden-database-system)
-7. [Converting Python to Native `.exe`](#-converting-python-to-native-exe)
+7. [Converting Python to Native `.exe`](#%EF%B8%8F-converting-python-to-native-exe)
 8. [Installation & Local Setup](#-installation--local-setup)
 9. [License](#-license)
 
@@ -129,7 +129,7 @@ Hash = SHA-256(PIN)
 During authorization, the hash of the entered digits is calculated in-memory and compared against the stored hash in the app_security table.
 
 ---
-## ⚙️ Converting Python to Native .exe
+## ⚙️ Converting Python to Native `.exe`
 Because Windows natively requires a multi-resolution .ico format for binary icons, the build pipeline converts assets/logo.svg to assets/logo (1).ico using PyQt6's off-screen rasterizer and Pillow.
 
 ### Build Step 1: Generate ICO Asset

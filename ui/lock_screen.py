@@ -21,8 +21,6 @@ from utils.branding import LogoBadge
 
 
 class PinDots(QWidget):
-    """Four PIN indicators with eased fill, glow halo, and error flash."""
-
     def __init__(self, count: int = 4, parent=None):
         super().__init__(parent)
         self.count = count
@@ -105,7 +103,6 @@ class PinDots(QWidget):
 
 
 class LockScreen(QWidget):
-    """PIN gate with branded logo badge."""
 
     unlocked = Signal()
     PIN_LENGTH = 4
@@ -133,7 +130,6 @@ class LockScreen(QWidget):
         cl.setContentsMargins(28, 26, 28, 26)
         cl.setSpacing(13)
 
-        # ── Logo badge with breathing glow ──
         self.logo_badge = LogoBadge(size=78, breathe=True, path=self.logo_path)
         self.logo_badge.setCursor(Qt.CursorShape.ArrowCursor)
         cl.addWidget(self.logo_badge, 0, Qt.AlignmentFlag.AlignCenter)
@@ -203,8 +199,6 @@ class LockScreen(QWidget):
         self._fade.finished.connect(lambda: self.card.setGraphicsEffect(None))
         self._fade.start()
 
-    # ── Input ──
-
     def _on_key(self, char: str):
         if char == 'C':
             self.entered_pin = ""
@@ -242,8 +236,6 @@ class LockScreen(QWidget):
         )
         self._update_dots()
         self.setFocus()
-
-    # ── Validation ──
 
     def _submit(self):
         if len(self.entered_pin) < self.PIN_LENGTH:

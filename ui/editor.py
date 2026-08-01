@@ -23,13 +23,7 @@ from ui.components import (
     COLOR_TEXT, COLOR_MUTED, COLOR_DANGER
 )
 
-
-# ──────────────────────────────────────────────
-# Pulsing "unsaved changes" indicator
-# ──────────────────────────────────────────────
-
 class DirtyDot(QLabel):
-    """Small amber dot that gently pulses while there are unsaved edits."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -55,7 +49,7 @@ class DirtyDot(QLabel):
 
     def _tick(self):
         self._phase += 0.13
-        # Oscillate opacity between ~0.45 and 1.0
+
         import math
         alpha = 0.72 + math.sin(self._phase) * 0.28
         self._render(alpha)
@@ -70,20 +64,11 @@ class DirtyDot(QLabel):
             f"border-radius: 5px; border: none;"
         )
 
-
-# ══════════════════════════════════════════════
-# EDITOR VIEW
-# ══════════════════════════════════════════════
-
 class EditorView(QWidget):
-    """Rich-text journal editor with metadata controls."""
+    entry_saved = Signal()         
+    entry_deleted = Signal()       
+    confetti_requested = Signal() 
 
-    # ── Signals consumed by main.py ──
-    entry_saved = Signal()          # sidebar should refresh
-    entry_deleted = Signal()        # sidebar should refresh
-    confetti_requested = Signal()   # fire the celebration overlay
-
-    # (icon key, tooltip)
     MOODS = [
         ("happy",     "Happy"),
         ("neutral",   "Neutral"),
@@ -102,16 +87,12 @@ class EditorView(QWidget):
         self.current_entry_id: int | None = None
         self.selected_mood = "happy"
 
-        self._loading = False    # suppress dirty-flag while populating
+        self._loading = False    
         self._dirty = False
 
         self._init_ui()
         self._setup_shortcuts()
         self._update_counts()
-
-    # ══════════════════════════════════════════
-    # UI CONSTRUCTION
-    # ══════════════════════════════════════════
 
     def _init_ui(self):
         root = QVBoxLayout(self)
@@ -127,7 +108,6 @@ class EditorView(QWidget):
         layout.addWidget(self._divider())
         layout.addLayout(self._build_format_row())
 
-        # ── Main writing surface ──
         self.editor = MinimalTextEdit()
         self.editor.setPlaceholderText(
             "What echoed through your day?\n\n"
@@ -147,8 +127,6 @@ class EditorView(QWidget):
         line.setStyleSheet(f"background-color: {COLOR_BORDER}; border: none;")
         return line
 
-    # ── Row 1: title + dirty dot ──────────────
-
     def _build_title_row(self) -> QHBoxLayout:
         row = QHBoxLayout()
         row.setSpacing(10)
@@ -163,8 +141,6 @@ class EditorView(QWidget):
         row.addWidget(self.title_input, 1)
         row.addWidget(self.dirty_dot, 0, Qt.AlignmentFlag.AlignVCenter)
         return row
-
-    # ── Row 2: category + mood ────────────────
 
     def _build_meta_row(self) -> QHBoxLayout:
         row = QHBoxLayout()
@@ -216,7 +192,6 @@ class EditorView(QWidget):
         row.addSpacing(14)
         row.addWidget(mood_lbl)
 
-        # ── Mood toggle group ──
         self.mood_btns: dict[str, AnimatedButton] = {}
         for key, tip in self.MOODS:
             btn = AnimatedButton(icon_name=key, icon_color="#FAFAFA", corner_radius=7)
@@ -231,8 +206,6 @@ class EditorView(QWidget):
         row.addStretch(1)
         return row
 
-    # ── Row 3: formatting toolbar ─────────────
-
     def _build_format_row(self) -> QHBoxLayout:
         row = QHBoxLayout()
         row.setSpacing(6)
@@ -245,8 +218,6 @@ class EditorView(QWidget):
         row.addWidget(self.italic_btn)
         row.addWidget(self.underline_btn)
         row.addStretch(1)
-
-        # Live status chip (right side of toolbar)
         self.mode_lbl = QLabel("New entry")
         self.mode_lbl.setFont(QFont("Inter", 8))
         self.mode_lbl.setStyleSheet(f"color: {COLOR_MUTED}; border: none;")
@@ -261,8 +232,6 @@ class EditorView(QWidget):
         btn.setToolTip(tip)
         btn.clicked.connect(slot)
         return btn
-
-    # ── Row 4: footer ─────────────────────────
 
     def _build_footer(self) -> QHBoxLayout:
         row = QHBoxLayout()
@@ -306,13 +275,7 @@ class EditorView(QWidget):
         row.addWidget(self.delete_btn)
         row.addWidget(self.save_btn)
         return row
-
-    # ══════════════════════════════════════════
-    # SHORTCUTS
-    # ══════════════════════════════════════════
-
     def _setup_shortcuts(self):
-        """Editor-scoped shortcuts (won't clash with global window keys)."""
         ctx = Qt.ShortcutContext.WidgetWithChildrenShortcut
 
         for seq, slot in (
@@ -324,10 +287,6 @@ class EditorView(QWidget):
             sc = QShortcut(QKeySequence(seq), self)
             sc.setContext(ctx)
             sc.activated.connect(slot)
-
-    # ══════════════════════════════════════════
-    # DIRTY TRACKING
-    # ══════════════════════════════════════════
 
     def _mark_dirty(self, *_):
         if self._loading:
@@ -342,10 +301,6 @@ class EditorView(QWidget):
 
     def has_unsaved_changes(self) -> bool:
         return self._dirty
-
-    # ══════════════════════════════════════════
-    # TEXT / COUNTS
-    # ══════════════════════════════════════════
 
     def _on_text_changed(self):
         self._mark_dirty()
@@ -362,10 +317,6 @@ class EditorView(QWidget):
             parts.append(f"~{minutes} min read")
         self.status_lbl.setText("   ·   ".join(parts))
 
-    # ══════════════════════════════════════════
-    # MOOD
-    # ══════════════════════════════════════════
-
     def _on_mood_clicked(self, key: str):
         self._set_mood(key)
         self._mark_dirty()
@@ -377,12 +328,7 @@ class EditorView(QWidget):
         for k, btn in self.mood_btns.items():
             btn.setChecked(k == key)
 
-    # ══════════════════════════════════════════
-    # FORMATTING
-    # ══════════════════════════════════════════
-
     def _apply_format(self, fmt: QTextCharFormat):
-        """Apply to the selection, or to subsequent typing if nothing is selected."""
         cursor = self.editor.textCursor()
         if not cursor.hasSelection():
             cursor.select(QTextCursor.SelectionType.WordUnderCursor)
@@ -410,15 +356,10 @@ class EditorView(QWidget):
         self._sync_format_buttons()
 
     def _sync_format_buttons(self):
-        """Keep the toolbar toggles matching the text under the cursor."""
         fmt = self.editor.currentCharFormat()
         self.bold_btn.setChecked(int(fmt.fontWeight()) >= 700)
         self.italic_btn.setChecked(fmt.fontItalic())
         self.underline_btn.setChecked(fmt.fontUnderline())
-
-    # ══════════════════════════════════════════
-    # LOAD / CLEAR
-    # ══════════════════════════════════════════
 
     def load_entry(self, entry_id: int):
         entry = self.db.get_entry_by_id(entry_id)
@@ -456,10 +397,6 @@ class EditorView(QWidget):
         self._update_counts()
         self.title_input.setFocus()
 
-    # ══════════════════════════════════════════
-    # SAVE / DELETE
-    # ══════════════════════════════════════════
-
     def save_current_entry(self):
         title = self.title_input.text().strip() or "Untitled Echo"
         content = self.editor.toHtml()
@@ -481,13 +418,10 @@ class EditorView(QWidget):
         self.mode_lbl.setText("Saved" if not is_new else "Saved · new entry")
 
         self._show_toast("Entry saved")
-
-        # ── The celebration hook main.py listens for ──
         self.confetti_requested.emit()
         self.entry_saved.emit()
 
     def delete_current_entry(self):
-        # Nothing persisted yet → just wipe the form
         if self.current_entry_id is None:
             self.clear_editor()
             self._show_toast("Draft cleared")
@@ -503,12 +437,7 @@ class EditorView(QWidget):
         self._show_toast("Entry deleted")
         self.entry_deleted.emit()
 
-    # ══════════════════════════════════════════
-    # DIALOGS / TOASTS
-    # ══════════════════════════════════════════
-
     def _confirm(self, title: str, text: str) -> bool:
-        """Dark-themed yes/no dialog."""
         box = QMessageBox(self)
         box.setWindowTitle(title)
         box.setText(text)

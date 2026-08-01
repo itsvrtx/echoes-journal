@@ -125,7 +125,7 @@ echoes_app/
 │   └── helpers.py            # PyInstaller runtime path resolver (sys._MEIPASS)
 │
 ├── main.py                   # Application entry point
-└── requirements.txt             # Developer script for rendering SVGs to .ico formats
+└── requirements.txt
 ```
 
 ---
@@ -228,6 +228,21 @@ pip install pyqt6 pillow pyinstaller
 ```bash
 python main.py
 ```
+---
+
+## 🛡️ Troubleshooting & Windows SmartScreen Notice
+When running the standalone .exe on a new Windows computer, you may see a blue "Windows protected your PC" (SmartScreen) warning popup.
+
+Why does this happen?
+This is a standard security prompt for newly built, independent software. Microsoft SmartScreen flags .exe files that lack paid Code Signing Certificates or haven't established a global download reputation score yet. Rest assured, ECHOES contains no malicious code or telemetry.
+
+How to bypass it:
+When the SmartScreen popup appears, click "More info".
+
+Click the "Run anyway" button that appears at the bottom.
+
+For developers: Building the binary using `--onedir` instead of `--onefile` or submitting the compiled .exe to the Microsoft Security Intelligence Portal for false-positive validation will prevent SmartScreen warnings globally.
+
 ---
 
 ## 📄 License

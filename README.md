@@ -37,6 +37,8 @@ In an era of hyper-connected, ad-driven note-taking tools, **ECHOES** was built 
 
 Your personal thoughts shouldn't live on remote cloud servers or require third-party logins. ECHOES operates 100% offline, storing data locally in an obscured, OS-hidden database protected by a SHA-256 encrypted access code.
 
+Entirely **vibecoded and developed by [itsvrtx](https://github.com/itsvrtx)**, the app ensures your personal thoughts don't live on remote cloud servers or require third-party logins. ECHOES operates 100% offline, storing data locally in an obscured, OS-hidden database protected by a SHA-256 encrypted access code.
+
 ---
 
 ## 🐍 Why Python & PyQt6?

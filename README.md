@@ -125,7 +125,7 @@ echoes_app/
 │   └── helpers.py            # PyInstaller runtime path resolver (sys._MEIPASS)
 │
 ├── main.py                   # Application entry point
-└── convert.py                # Developer script for rendering SVGs to .ico formats
+└── requirements.txt             # Developer script for rendering SVGs to .ico formats
 ```
 
 ---

@@ -18,6 +18,23 @@
 
 ---
 
+## 🖼️ Application Preview
+
+<div align="center">
+  <table border="0">
+    <tr>
+      <td width="50%" align="center">
+        <b>🔐 Security Lock Screen</b><br/><br/>
+        <img width="959" height="539" alt="image" src="https://github.com/user-attachments/assets/4225cf1a-cca3-4d3b-a46b-7672ad4fa046" />
+      </td>
+      <td width="50%" align="center">
+        <b>📝 Distraction-Free Editor & Timeline</b><br/><br/>
+        <img width="959" height="539" alt="image" src="https://github.com/user-attachments/assets/b5500787-3583-46c0-90b6-2a3cc9505be0" />
+  </table>
+</div>
+
+---
+
 ## 📖 Table of Contents
 1. [Overview & Philosophy](#-overview--philosophy)
 2. [Why Python & PyQt6?](#-why-python--pyqt6)
@@ -62,6 +79,7 @@ While Python comes with default GUI kits like Tkinter, **PyQt6** was selected to
 * 🎨 **Minimalist UI Design:** A soft, modern layout engineered to eliminate UI clutter while writing.
 * 🔍 **Instant Search & Filtering:** Dynamic, low-latency entry search powered by indexed SQLite queries.
 * 🏷️ **Categorization & Mood Tracking:** Tag journal entries with categories and mood indicators for organized retrieval.
+* 🐣 **Hidden Easter Eggs:** Interactive micro-animations and hidden playful surprises are tucked away within the UI waiting to be discovered!
 * ⚡ **Standalone Binary:** Fully packaged as an offline, single-directory executable (`.exe`)—no Python installation required for end-users.
 
 ---
@@ -109,7 +127,9 @@ echoes_app/
 ├── main.py                   # Application entry point
 └── convert.py                # Developer script for rendering SVGs to .ico formats
 ```
+
 ---
+
 ## 🔒 Security & Hidden Database System
 
 ### 1. Obfuscated Storage Path
@@ -131,6 +151,7 @@ Hash = SHA-256(PIN)
 During authorization, the hash of the entered digits is calculated in-memory and compared against the stored hash in the app_security table.
 
 ---
+
 ## ⚙️ Converting Python to Native `.exe`
 Because Windows natively requires a multi-resolution .ico format for binary icons, the build pipeline converts assets/logo.svg to assets/logo (1).ico using PyQt6's off-screen rasterizer and Pillow.
 
@@ -184,6 +205,7 @@ pyinstaller --noconfirm --onefile --windowed --icon "assets/logo (1).ico" --add-
 --icon: Sets the native binary icon displayed in Windows Explorer and the Taskbar.
 
 ---
+
 ## 🚀 Installation & Local Setup
 ### Prerequisites
 Python 3.11+ installed on your machine.
@@ -207,5 +229,6 @@ pip install pyqt6 pillow pyinstaller
 python main.py
 ```
 ---
+
 ## 📄 License
 Distributed under the MIT License. See [LICENSE](LICENSE) for more information.

@@ -8,7 +8,6 @@ from utils.branding import LogoBadge
 
 
 class ClickableLabel(QLabel):
-    """QLabel emitting click / double-click signals for easter eggs."""
     clicked = Signal()
     double_clicked = Signal()
 
@@ -22,12 +21,10 @@ class ClickableLabel(QLabel):
 
 
 class HeaderView(QWidget):
-    """Header: logo badge, brand text, daily quote, live clock, actions."""
-
     lock_requested = Signal()
     new_entry_requested = Signal()
-    cat_requested = Signal()      # double-click the title
-    magic_requested = Signal()    # 5 rapid logo clicks
+    cat_requested = Signal()
+    magic_requested = Signal()
 
     LOGO_CLICK_TARGET = 5
     CLICK_RESET_MS = 1600
@@ -51,12 +48,9 @@ class HeaderView(QWidget):
         card_layout = QHBoxLayout(card)
         card_layout.setContentsMargins(14, 10, 16, 10)
         card_layout.setSpacing(0)
-
-        # ── Brand block ──
         brand_box = QHBoxLayout()
         brand_box.setSpacing(12)
 
-        # Always renders — falls back to a generated mark if no file exists
         self.logo_badge = LogoBadge(size=40, breathe=False, path=self.logo_path)
         self.logo_badge.setToolTip("Psst… click me five times")
         self.logo_badge.clicked.connect(self._on_logo_clicked)
@@ -87,7 +81,6 @@ class HeaderView(QWidget):
         text_box.addWidget(self.quote_lbl)
         brand_box.addLayout(text_box)
 
-        # ── Live clock ──
         center_box = QVBoxLayout()
         center_box.setSpacing(1)
         center_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -107,7 +100,6 @@ class HeaderView(QWidget):
         center_box.addWidget(self.clock_lbl, alignment=Qt.AlignmentFlag.AlignCenter)
         center_box.addWidget(self.date_lbl, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # ── Actions ──
         right_box = QHBoxLayout()
         right_box.setSpacing(8)
         right_box.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -131,8 +123,6 @@ class HeaderView(QWidget):
         timer.timeout.connect(self._update_clock)
         timer.start(1000)
         self._update_clock()
-
-    # ── Easter egg: 5 logo clicks ──
 
     def _on_logo_clicked(self):
         self._logo_clicks += 1

@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QStackedWidget, QGraphicsOpacityEffect
 )
 
-from database import Database
+from database.db_manager import DatabaseManager
 from ui.lock_screen import LockScreen
 from ui.header import HeaderView
 from ui.sidebar import SidebarView
@@ -28,7 +28,7 @@ class EchoesApp(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.db = Database()
+        self.db = DatabaseManager()
         self.konami_progress = 0
         self.anim = None
 

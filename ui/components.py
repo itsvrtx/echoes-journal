@@ -5,7 +5,6 @@ from PySide6.QtWidgets import (
 )
 from utils.icons import get_svg_icon, get_svg_pixmap
 
-# Color Palette Tokens
 COLOR_BG = "#0F0F12"
 COLOR_SURFACE = "#18181B"
 COLOR_SURFACE_HOVER = "#242429"
@@ -17,7 +16,6 @@ COLOR_MUTED = "#A1A1AA"
 COLOR_DANGER = "#EF4444"
 
 class MinimalCard(QFrame):
-    """Clean surface card container with border outline."""
     def __init__(self, parent=None, corner_radius: int = 12):
         super().__init__(parent)
         self.setStyleSheet(f"""
@@ -30,7 +28,6 @@ class MinimalCard(QFrame):
 
 
 class AnimatedButton(QPushButton):
-    """Modern flat minimalist button supporting icons and clear states."""
     def __init__(self, text: str = "", parent=None, primary: bool = False, 
                  icon_name: str = None, icon_color: str = "#FAFAFA", corner_radius: int = 8):
         super().__init__(text, parent)
@@ -80,7 +77,6 @@ class AnimatedButton(QPushButton):
 
 
 class MinimalInput(QLineEdit):
-    """Line edit with optional leading vector icon."""
     def __init__(self, placeholder: str = "", icon_name: str = None, parent=None):
         super().__init__(parent)
         self.setPlaceholderText(placeholder)
@@ -107,7 +103,6 @@ class MinimalInput(QLineEdit):
 
 
 class MinimalTextEdit(QTextEdit):
-    """Sleek minimalist editor area."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFont(QFont("Inter", 10))
@@ -135,7 +130,6 @@ class MinimalTextEdit(QTextEdit):
 
 
 class ToastNotification(QFrame):
-    """Animated sliding toast notification banner with vector SVG icon."""
     def __init__(self, message: str, parent=None):
         super().__init__(parent)
         self.setFixedSize(260, 42)

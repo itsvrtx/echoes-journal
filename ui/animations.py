@@ -19,24 +19,16 @@ from PySide6.QtGui import (
 from PySide6.QtWidgets import QWidget
 from ui.cat import PolishedCat as WalkingCat
 
-
-# ──────────────────────────────────────────────
-# Cat Palettes: (body, accent)
-# ──────────────────────────────────────────────
 CAT_PALETTES = [
-    ("#FF8C42", "#D4702F"),   # Orange Tabby
-    ("#3D3D3D", "#252525"),   # Black Cat
-    ("#A0A0A0", "#787878"),   # Gray Cat
-    ("#F0E6D0", "#C8B898"),   # Cream Cat
-    ("#6B4226", "#4A2E1A"),   # Brown Tabby
-    ("#C9B1FF", "#9B7FE6"),   # Lavender
-    ("#FFB6C1", "#E8929E"),   # Pink
-    ("#87CEEB", "#5FAFD7"),   # Sky Blue
+    ("#FF8C42", "#D4702F"),  
+    ("#3D3D3D", "#252525"),   
+    ("#A0A0A0", "#787878"),   
+    ("#F0E6D0", "#C8B898"),   
+    ("#6B4226", "#4A2E1A"),   
+    ("#C9B1FF", "#9B7FE6"),   
+    ("#FFB6C1", "#E8929E"),   
+    ("#87CEEB", "#5FAFD7"),   
 ]
-
-# ══════════════════════════════════════════════
-# CONFETTI
-# ══════════════════════════════════════════════
 
 class _ConfettiPiece:
     __slots__ = ('x', 'y', 'vx', 'vy', 'gravity', 'color',
@@ -59,7 +51,6 @@ class _ConfettiPiece:
 
 
 class ConfettiOverlay(QWidget):
-    """Full-size transparent confetti layer. Supports point bursts and rain."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -73,13 +64,11 @@ class ConfettiOverlay(QWidget):
         self.hide()
 
     def burst(self, x, y, count=40):
-        """Explosive burst from a single point."""
         for _ in range(count):
             self.particles.append(_ConfettiPiece(x, y))
         self._activate()
 
     def rain(self, count=55):
-        """Confetti falling from the top edge across the full width."""
         w = max(self.width(), 300)
         for _ in range(count):
             p = _ConfettiPiece(random.uniform(0, w), random.uniform(-60, -5))
@@ -130,18 +119,7 @@ class ConfettiOverlay(QWidget):
             p.restore()
         p.end()
 
-
-# ══════════════════════════════════════════════
-# CELEBRATION BANNER  (fixes the clipped "Magic!" bug)
-# ══════════════════════════════════════════════
-
 class CelebrationBanner(QWidget):
-    """
-    Full-window overlay that draws a centred, animated message pill.
-    Because it always covers the whole host and paints at the CENTER,
-    it can never be clipped by the header or any layout widget.
-    """
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -185,7 +163,6 @@ class CelebrationBanner(QWidget):
 
         t = min(1.0, self.elapsed / self.duration_ms)
 
-        # Pop-in → hold+pulse → fade-out
         if t < 0.20:
             k = t / 0.20
             scale = 0.55 + 0.55 * self._ease_out_back(k)
@@ -216,18 +193,15 @@ class CelebrationBanner(QWidget):
         pill_h = th + 44 + (24 if self.subtitle else 0)
         pill = QRectF(-pill_w / 2, -pill_h / 2, pill_w, pill_h)
 
-        # Outer glow ring
         p.setBrush(Qt.BrushStyle.NoBrush)
         for i, a in enumerate((26, 46, 80)):
             p.setPen(QPen(QColor(139, 92, 246, a), 8 - i * 2))
             p.drawRoundedRect(pill.adjusted(-8 + i * 2, -8 + i * 2, 8 - i * 2, 8 - i * 2), 24, 24)
 
-        # Pill body
         p.setPen(QPen(QColor("#8B5CF6"), 2))
         p.setBrush(QBrush(QColor(24, 24, 27, 240)))
         p.drawRoundedRect(pill, 18, 18)
 
-        # Orbiting sparkles
         for i in range(10):
             ang = (i / 10.0) * math.pi * 2 + t * 2.4
             rx = pill_w * 0.60 + math.sin(t * 7 + i) * 7
@@ -235,7 +209,6 @@ class CelebrationBanner(QWidget):
             self._star(p, math.cos(ang) * rx, math.sin(ang) * ry,
                        3.5 + math.sin(t * 9 + i) * 1.5)
 
-        # Text
         p.setPen(QColor("#FAFAFA"))
         p.setFont(title_font)
         ty = -12 if self.subtitle else 0
@@ -259,14 +232,7 @@ class CelebrationBanner(QWidget):
         p.setPen(Qt.PenStyle.NoPen)
         p.fillPath(path, QColor("#F5C242"))
 
-
-# ══════════════════════════════════════════════
-# AMBIENT PARTICLES
-# ══════════════════════════════════════════════
-
 class AmbientParticles(QWidget):
-    """Subtle drifting dots for a gently 'living' background."""
-
     def __init__(self, parent=None, count=14):
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -290,7 +256,7 @@ class AmbientParticles(QWidget):
 
     def _tick(self):
         if not self.isVisible():
-            return                      # save CPU while locked
+            return                      
         for d in self.dots:
             d['y'] -= d['speed']
             d['phase'] += 0.015
@@ -311,16 +277,7 @@ class AmbientParticles(QWidget):
             p.drawEllipse(QPointF(d['x'] * w, d['y'] * h), d['size'], d['size'])
         p.end()
 
-
-# ══════════════════════════════════════════════
-# ANIMATION MANAGER  (single source of truth)
-# ══════════════════════════════════════════════
-
 class AnimationManager(QObject):
-    """
-    Owns every overlay, keeps them sized to the host, and guarantees
-    correct z-order so nothing is ever hidden behind a layout widget.
-    """
 
     def __init__(self, host: QWidget):
         super().__init__(host)
@@ -334,12 +291,9 @@ class AnimationManager(QObject):
         host.installEventFilter(self)
         self._sync_geometry()
 
-        # Periodic ambient cat
         self._spawn_timer = QTimer(self)
         self._spawn_timer.timeout.connect(self.spawn_cat)
         self._spawn_timer.start(random.randint(18000, 45000))
-
-    # ── Geometry / stacking ───────────────────
 
     def eventFilter(self, obj, event):
         if obj is self.host and event.type() in (QEvent.Type.Resize, QEvent.Type.Show):
@@ -353,7 +307,6 @@ class AnimationManager(QObject):
         self._restack()
 
     def _restack(self):
-        """Enforce: ambient → confetti → cats → banner."""
         self.ambient.raise_()
         self.confetti.raise_()
         for c in list(self.cats):
@@ -362,8 +315,6 @@ class AnimationManager(QObject):
             except RuntimeError:
                 self.cats.remove(c)
         self.banner.raise_()
-
-    # ── Public API ────────────────────────────
 
     def spawn_cat(self):
         cat = WalkingCat(self.host)
@@ -390,7 +341,6 @@ class AnimationManager(QObject):
         self._restack()
 
     def celebrate(self, text, subtitle="", rain=True, cats=0):
-        """Centred banner + optional confetti rain + optional cats."""
         self.banner.show_message(text, subtitle)
         if rain:
             self.confetti.rain(65)

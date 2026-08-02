@@ -9,11 +9,12 @@ ECHOES — Editor
 • Format buttons stay in sync with the cursor position
 """
 
+import math
 from PySide6.QtCore import Qt, Signal, QTimer
 from PySide6.QtGui import QFont, QKeySequence, QShortcut, QTextCharFormat, QTextCursor
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
-    QMessageBox, QFrame, QSizePolicy
+    QMessageBox, QFrame
 )
 
 from ui.components import (
@@ -23,8 +24,8 @@ from ui.components import (
     COLOR_TEXT, COLOR_MUTED, COLOR_DANGER
 )
 
-class DirtyDot(QLabel):
 
+class DirtyDot(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFixedSize(10, 10)
@@ -49,8 +50,6 @@ class DirtyDot(QLabel):
 
     def _tick(self):
         self._phase += 0.13
-
-        import math
         alpha = 0.72 + math.sin(self._phase) * 0.28
         self._render(alpha)
 
@@ -63,6 +62,7 @@ class DirtyDot(QLabel):
             f"background-color: rgba(245, 158, 11, {a});"
             f"border-radius: 5px; border: none;"
         )
+
 
 class EditorView(QWidget):
     entry_saved = Signal()         
@@ -275,6 +275,7 @@ class EditorView(QWidget):
         row.addWidget(self.delete_btn)
         row.addWidget(self.save_btn)
         return row
+
     def _setup_shortcuts(self):
         ctx = Qt.ShortcutContext.WidgetWithChildrenShortcut
 

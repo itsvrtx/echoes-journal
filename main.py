@@ -1,9 +1,9 @@
 import sys
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QFont, QColor, QPalette, QKeySequence, QShortcut
+from PySide6.QtGui import QFont, QColor, QPalette, QKeySequence, QShortcut, QCloseEvent
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
-    QStackedWidget, QGraphicsOpacityEffect
+    QStackedWidget, QGraphicsOpacityEffect, QMessageBox
 )
 
 from database.db_manager import DatabaseManager
@@ -53,6 +53,31 @@ class EchoesApp(QMainWindow):
         self.root_stack.addWidget(self.main_workspace)
 
         self.root_stack.setCurrentWidget(self.lock_screen)
+
+    def closeEvent(self, event: QCloseEvent):
+        if hasattr(self, "editor") and self.editor.has_unsaved_changes():
+            box = QMessageBox(self)
+            box.setWindowTitle("Unsaved Changes")
+            box.setText("You have unsaved changes in your entry.\n\nDo you want to save before exiting?")
+            box.setIcon(QMessageBox.Icon.Warning)
+            
+            save_btn = box.addButton("Save", QMessageBox.ButtonRole.AcceptRole)
+            discard_btn = box.addButton("Discard", QMessageBox.ButtonRole.DestructiveRole)
+            cancel_btn = box.addButton("Cancel", QMessageBox.ButtonRole.RejectRole)
+            
+            box.setDefaultButton(save_btn)
+            box.exec()
+
+            clicked = box.clickedButton()
+            if clicked == save_btn:
+                self.editor.save_current_entry()
+                event.accept()
+            elif clicked == discard_btn:
+                event.accept()
+            else:
+                event.ignore()
+        else:
+            event.accept()
 
     def _apply_global_theme(self):
         pal = self.palette()

@@ -44,7 +44,8 @@
 6. [Security & Hidden Database System](#-security--hidden-database-system)
 7. [Converting Python to Native `.exe`](#%EF%B8%8F-converting-python-to-native-exe)
 8. [Installation & Local Setup](#-installation--local-setup)
-9. [License](#-license)
+9. [Troubleshooting & Windows SmartScreen Notice](-troubleshooting--windows-smartscreen-notice)
+10. [License](#-license)
 
 ---
 

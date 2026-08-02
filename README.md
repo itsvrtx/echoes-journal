@@ -248,3 +248,5 @@ For developers: Building the binary using `--onedir` instead of `--onefile` or s
 
 ## 📄 License
 Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
+
+---

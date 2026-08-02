@@ -1,7 +1,32 @@
+import ctypes
 import hashlib
+import os
 import sqlite3
+import sys
 from typing import Dict, List, Optional
-from database.database import get_db_path
+
+
+def get_db_path() -> str:
+    if sys.platform == "win32":
+        base_dir = os.environ.get(
+            "LOCALAPPDATA", os.path.expanduser("~\\AppData\\Local")
+        )
+    else:
+        base_dir = os.path.expanduser("~/.local/share")
+
+    app_dir = os.path.join(base_dir, "ECHOES")
+    os.makedirs(app_dir, exist_ok=True)
+    db_path = os.path.join(app_dir, "echoes_data.db")
+
+    if sys.platform == "win32":
+        try:
+            ctypes.windll.kernel32.SetFileAttributesW(app_dir, 0x02)
+            if os.path.exists(db_path):
+                ctypes.windll.kernel32.SetFileAttributesW(db_path, 0x02)
+        except Exception:
+            pass
+
+    return db_path
 
 
 class DatabaseManager:
@@ -53,26 +78,94 @@ class DatabaseManager:
 
     is_pin_set = has_pin
 
-    def set_pin(self, pin: str) -> bool:
-        if len(pin) != 4 or not pin.isdigit():
-            return False
-        hashed = hashlib.sha256(pin.encode("utf-8")).hexdigest()
+    def verify_pin(self, pin: str) -> bool:
+        pin_hash = hashlib.sha256(pin.encode()).hexdigest()
         conn = self.get_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT OR REPLACE INTO app_security (id, pin_hash) VALUES (1, ?)",
-            (hashed,),
+            "SELECT pin_hash FROM app_security WHERE id = 1 AND pin_hash = ?",
+            (pin_hash,),
+        )
+        return cursor.fetchone() is not None
+
+    def set_pin(self, pin: str) -> bool:
+        pin_hash = hashlib.sha256(pin.encode()).hexdigest()
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO app_security (id, pin_hash) VALUES (1, ?)
+            ON CONFLICT(id) DO UPDATE SET pin_hash = excluded.pin_hash
+        """,
+            (pin_hash,),
         )
         conn.commit()
         return True
 
-    def verify_pin(self, entered_pin: str) -> bool:
-        hashed = hashlib.sha256(entered_pin.encode("utf-8")).hexdigest()
+    def add_entry(
+        self,
+        title: str,
+        content: str,
+        category: str = "General",
+        mood: str = "Neutral",
+        *args,
+        **kwargs,
+    ) -> int:
         conn = self.get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT pin_hash FROM app_security WHERE id = 1")
-        row = cursor.fetchone()
-        return row is not None and row["pin_hash"] == hashed
+        cursor.execute(
+            """
+            INSERT INTO journal_entries (title, content, category, mood)
+            VALUES (?, ?, ?, ?)
+        """,
+            (title, content, category, mood),
+        )
+        conn.commit()
+        return cursor.lastrowid
+
+    def save_entry(
+        self,
+        title: str,
+        content: str,
+        category: str = "General",
+        mood: str = "Neutral",
+        *args,
+        **kwargs,
+    ) -> int:
+        return self.add_entry(title, content, category, mood, *args, **kwargs)
+
+    def create_entry(
+        self,
+        title: str,
+        content: str,
+        category: str = "General",
+        mood: str = "Neutral",
+        *args,
+        **kwargs,
+    ) -> int:
+        return self.add_entry(title, content, category, mood, *args, **kwargs)
+
+    def update_entry(
+        self,
+        entry_id: int,
+        title: str,
+        content: str,
+        category: str = "General",
+        mood: str = "Neutral",
+        *args,
+        **kwargs,
+    ):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE journal_entries
+            SET title = ?, content = ?, category = ?, mood = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        """,
+            (title, content, category, mood, entry_id),
+        )
+        conn.commit()
 
     def get_all_entries(
         self,
@@ -104,49 +197,28 @@ class DatabaseManager:
         rows = cursor.fetchall()
         return [dict(row) for row in rows]
 
-    def add_entry(
-        self,
-        title: str,
-        content: str,
-        category: str = "General",
-        mood: str = "Neutral",
-    ) -> int:
+    def get_entry_count(self) -> int:
         conn = self.get_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            """
-            INSERT INTO journal_entries (title, content, category, mood)
-            VALUES (?, ?, ?, ?)
-        """,
-            (title, content, category, mood),
-        )
-        conn.commit()
-        return cursor.lastrowid
+        cursor.execute("SELECT COUNT(*) FROM journal_entries")
+        result = cursor.fetchone()
+        return result[0] if result else 0
 
-    def update_entry(
-        self,
-        entry_id: int,
-        title: str,
-        content: str,
-        category: str = "General",
-        mood: str = "Neutral",
-    ):
+    def get_entry(self, entry_id: int) -> Optional[Dict]:
         conn = self.get_connection()
         cursor = conn.cursor()
         cursor.execute(
-            """
-            UPDATE journal_entries
-            SET title = ?, content = ?, category = ?, mood = ?, updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-        """,
-            (title, content, category, mood, entry_id),
+            "SELECT * FROM journal_entries WHERE id = ?", (entry_id,)
         )
-        conn.commit()
+        row = cursor.fetchone()
+        return dict(row) if row else None
 
-    def delete_entry(self, entry_id: int):
+    def get_entry_by_id(self, entry_id: int) -> Optional[Dict]:
+        return self.get_entry(entry_id)
+
+    def delete_entry(self, entry_id: int) -> bool:
         conn = self.get_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            "DELETE FROM journal_entries WHERE id = ?", (entry_id,)
-        )
+        cursor.execute("DELETE FROM journal_entries WHERE id = ?", (entry_id,))
         conn.commit()
+        return cursor.rowcount > 0

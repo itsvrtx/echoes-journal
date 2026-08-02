@@ -15,7 +15,6 @@ def get_db_path() -> str:
     os.makedirs(app_dir, exist_ok=True)
 
     db_path = os.path.join(app_dir, "echoes_data.db")
-    _hide_file_windows(app_dir)
     if os.path.exists(db_path):
         _hide_file_windows(db_path)
 

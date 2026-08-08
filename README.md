@@ -212,7 +212,7 @@ pyinstaller --noconfirm --onefile --windowed --icon "assets/logo (1).ico" --add-
 Python 3.11+ installed on your machine.
 ### 1. Clone the Repository
 ```bash
-git clone (https://github.com/itsvrtx/echoes-journal.git)
+git clone https://github.com/itsvrtx/echoes-journal.git
 cd echoes-app
 ```
 ### 2. Create & Activate Virtual Environment
